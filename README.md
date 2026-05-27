@@ -2,22 +2,22 @@
 
 Proyecto educativo para gestionar clientes, facturas y transacciones con FastAPI.
 
-## 👤 Autor
-**Nombre:** [Tu nombre aquí]  
-**Email:** [Tu email aquí]  
-**Institución:** [Tu institución aquí]
+## Autor
+**Nombre:** Breiner Stanly Muñoz Martinez
+**Email:** Breiner1munoz@gmail.com  
+**Ficha:** 3407186
 
 ---
 
-## 📝 ¿Qué hace este proyecto?
+## ¿Qué hace este proyecto?
 
-- ✅ Crear, leer, actualizar y eliminar clientes (CRUD)
-- ✅ Gestionar facturas de clientes
-- ✅ Registrar transacciones de productos/servicios
+- Crear, leer, actualizar y eliminar clientes (CRUD)
+- Gestionar facturas de clientes
+- Registrar transacciones de productos/servicios
 
 ---
 
-## 🚀 Pasos para ejecutar
+## Pasos para ejecutar
 
 ### 1. Instalar Python
 Descargar de: https://www.python.org/
@@ -42,7 +42,7 @@ Abre: http://127.0.0.1:8000/docs
 
 ---
 
-## 📁 Carpetas del proyecto
+## Carpetas del proyecto
 
 ```
 app/
@@ -53,7 +53,7 @@ app/
 
 ---
 
-## 📌 Endpoints principales
+## Endpoints principales
 
 **Clientes:** `/clientes`  
 **Facturas:** `/facturas`  
@@ -61,7 +61,7 @@ app/
 
 ---
 
-## ✅ Tareas realizadas
+## Tareas realizadas
 
 1. Creada estructura profesional de carpetas
 2. Implementado CRUD completo para Transacciones
