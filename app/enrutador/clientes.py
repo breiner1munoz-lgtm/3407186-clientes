@@ -11,14 +11,12 @@ router = APIRouter(prefix="/clientes", tags=["clientes"])
 
 @router.get("", response_model=List[Cliente])
 async def listar_clientes(session: Session = Depends(get_session)):
-    """Obtener todos los clientes"""
     clientes = session.exec(select(Cliente)).all()
     return clientes
 
 
 @router.get("/{id}", response_model=Cliente)
 async def obtener_cliente(id: int, session: Session = Depends(get_session)):
-    """Obtener un cliente por ID"""
     cliente = session.get(Cliente, id)
     if not cliente:
         raise HTTPException(status_code=404, detail="Cliente no encontrado")
@@ -27,7 +25,6 @@ async def obtener_cliente(id: int, session: Session = Depends(get_session)):
 
 @router.post("", response_model=Cliente)
 async def crear_cliente(datos: ClienteCrear, session: Session = Depends(get_session)):
-    """Crear un nuevo cliente"""
     nuevo_cliente = Cliente(**datos.model_dump())
     session.add(nuevo_cliente)
     session.commit()
@@ -37,7 +34,6 @@ async def crear_cliente(datos: ClienteCrear, session: Session = Depends(get_sess
 
 @router.put("/{id}", response_model=Cliente)
 async def editar_cliente(id: int, datos: ClienteEditar, session: Session = Depends(get_session)):
-    """Actualizar un cliente existente"""
     cliente = session.get(Cliente, id)
     if not cliente:
         raise HTTPException(status_code=404, detail="Cliente no encontrado")
@@ -53,7 +49,6 @@ async def editar_cliente(id: int, datos: ClienteEditar, session: Session = Depen
 
 @router.delete("/{id}")
 async def eliminar_cliente(id: int, session: Session = Depends(get_session)):
-    """Eliminar un cliente"""
     cliente = session.get(Cliente, id)
     if not cliente:
         raise HTTPException(status_code=404, detail="Cliente no encontrado")

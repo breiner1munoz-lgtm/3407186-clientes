@@ -9,7 +9,6 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Incluir enrutadores
 app.include_router(clientes_router)
 app.include_router(facturas_router)
 app.include_router(transacciones_router)
@@ -17,7 +16,6 @@ app.include_router(transacciones_router)
 
 @app.get("/")
 async def root():
-    """Endpoint raíz - Bienvenida"""
     return {
         "mensaje": "Bienvenido a la API de Gestión de Clientes",
         "versión": "1.0.0",
@@ -27,5 +25,4 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    """Verificar que la API está funcionando"""
     return {"estado": "La API está funcionando correctamente"}
