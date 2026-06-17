@@ -1,57 +1,62 @@
-from fastapi import APIRouter, HTTPException
+from typing import List
+
+from fastapi import APIRouter, Depends, HTTPException
+from sqlmodel import Session, select
+
+from conexion import get_session
 from app.modelos.clientes import Cliente, ClienteCrear, ClienteEditar
 
 router = APIRouter(prefix="/clientes", tags=["clientes"])
 
-# Simulación de base de datos en memoria
-lista_clientes: list[Cliente] = []
 
-
-@router.get("")
-async def listar_clientes():
+@router.get("", response_model=List[Cliente])
+async def listar_clientes(session: Session = Depends(get_session)):
     """Obtener todos los clientes"""
-    return {"clientes": lista_clientes, "total": len(lista_clientes)}
+    clientes = session.exec(select(Cliente)).all()
+    return clientes
 
 
-@router.get("/{id}")
-async def obtener_cliente(id: int):
+@router.get("/{id}", response_model=Cliente)
+async def obtener_cliente(id: int, session: Session = Depends(get_session)):
     """Obtener un cliente por ID"""
-    for cliente in lista_clientes:
-        if cliente.id == id:
-            return cliente
-    raise HTTPException(status_code=404, detail="Cliente no encontrado")
+    cliente = session.get(Cliente, id)
+    if not cliente:
+        raise HTTPException(status_code=404, detail="Cliente no encontrado")
+    return cliente
 
 
 @router.post("", response_model=Cliente)
-async def crear_cliente(datos: ClienteCrear):
+async def crear_cliente(datos: ClienteCrear, session: Session = Depends(get_session)):
     """Crear un nuevo cliente"""
-    nuevo_cliente = Cliente(
-        **datos.model_dump(),
-        id=len(lista_clientes) + 1
-    )
-    lista_clientes.append(nuevo_cliente)
+    nuevo_cliente = Cliente(**datos.model_dump())
+    session.add(nuevo_cliente)
+    session.commit()
+    session.refresh(nuevo_cliente)
     return nuevo_cliente
 
 
 @router.put("/{id}", response_model=Cliente)
-async def editar_cliente(id: int, datos: ClienteEditar):
+async def editar_cliente(id: int, datos: ClienteEditar, session: Session = Depends(get_session)):
     """Actualizar un cliente existente"""
-    for i, cliente in enumerate(lista_clientes):
-        if cliente.id == id:
-            cliente_actualizado = Cliente(
-                **datos.model_dump(),
-                id=id
-            )
-            lista_clientes[i] = cliente_actualizado
-            return cliente_actualizado
-    raise HTTPException(status_code=404, detail="Cliente no encontrado")
+    cliente = session.get(Cliente, id)
+    if not cliente:
+        raise HTTPException(status_code=404, detail="Cliente no encontrado")
+
+    cliente.nombre = datos.nombre
+    cliente.email = datos.email
+    cliente.descripcion = datos.descripcion
+    session.add(cliente)
+    session.commit()
+    session.refresh(cliente)
+    return cliente
 
 
 @router.delete("/{id}")
-async def eliminar_cliente(id: int):
+async def eliminar_cliente(id: int, session: Session = Depends(get_session)):
     """Eliminar un cliente"""
-    for i, cliente in enumerate(lista_clientes):
-        if cliente.id == id:
-            cliente_eliminado = lista_clientes.pop(i)
-            return {"mensaje": "Cliente eliminado exitosamente", "cliente": cliente_eliminado}
-    raise HTTPException(status_code=404, detail="Cliente no encontrado")
+    cliente = session.get(Cliente, id)
+    if not cliente:
+        raise HTTPException(status_code=404, detail="Cliente no encontrado")
+    session.delete(cliente)
+    session.commit()
+    return {"mensaje": "Cliente eliminado exitosamente"}
