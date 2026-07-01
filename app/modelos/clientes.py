@@ -1,4 +1,9 @@
-from sqlmodel import SQLModel, Field
+from typing import TYPE_CHECKING
+
+from sqlmodel import Field, Relationship, SQLModel
+
+if TYPE_CHECKING:
+    from app.modelos.facturas import Factura
 
 
 class ClienteBase(SQLModel):
@@ -17,3 +22,4 @@ class ClienteEditar(ClienteBase):
 
 class Cliente(ClienteBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
+    facturas: list["Factura"] = Relationship(back_populates="cliente")

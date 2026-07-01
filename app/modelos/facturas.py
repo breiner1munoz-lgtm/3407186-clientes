@@ -1,24 +1,17 @@
-from pydantic import BaseModel, computed_field
-from .clientes import Cliente
-from .transacciones import Transacciones
+from datetime import datetime
+from typing import TYPE_CHECKING, Optional
+
+from sqlmodel import Field, Relationship, SQLModel
+
+if TYPE_CHECKING:
+    from app.modelos.clientes import Cliente
+    from app.modelos.transacciones import Transacciones
 
 
-class FacturaBase(BaseModel):
-    fecha: str
-    cliente: Cliente
-    transacciones: list[Transacciones] = []
-
-    @computed_field
-    @property
-    def valor_total(self) -> float:
-        factura_id_actual = getattr(self, "id", None)
-        if factura_id_actual is None or not self.transacciones:
-            return 0.0
-        return sum(
-            t.cantidad * t.vr_unitario
-            for t in self.transacciones
-            if t.factura_id == factura_id_actual
-        )
+class FacturaBase(SQLModel):
+    fecha: datetime = Field(default_factory=datetime.now)
+    cliente_id: int = Field(foreign_key="cliente.id")
+    descripcion: str | None = None
 
 
 class FacturaCrear(FacturaBase):
@@ -29,5 +22,7 @@ class FacturaEditar(FacturaBase):
     pass
 
 
-class Factura(FacturaBase):
-    id: int | None = None
+class Factura(FacturaBase, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    cliente: Optional["Cliente"] = Relationship(back_populates="facturas")
+    transacciones: list["Transacciones"] = Relationship(back_populates="factura")
