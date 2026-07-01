@@ -12,7 +12,7 @@ if db_path.exists():
 
 os.environ["DATABASE_URL"] = f"sqlite:///{db_path}"
 
-from app.main import app
+from main import app
 from app.modelos.facturas import Factura
 from conexion import engine
 
@@ -83,3 +83,34 @@ def test_la_factura_expone_sus_relaciones_virtuales():
         assert factura.cliente.nombre == "Luis"
         assert len(factura.transacciones) == 1
         assert factura.transacciones[0].descripcion == "Producto"
+
+
+def test_eliminar_cliente_con_facturas_y_transacciones():
+    client = TestClient(app)
+
+    response_cliente = client.post(
+        "/clientes",
+        json={"nombre": "Carlos", "email": "carlos@test.com", "descripcion": "Cliente con datos"},
+    )
+    assert response_cliente.status_code == 200
+    cliente_id = response_cliente.json()["id"]
+
+    response_factura = client.post(
+        "/facturas",
+        json={"cliente_id": cliente_id, "descripcion": "Factura para eliminar"},
+    )
+    assert response_factura.status_code == 200
+    factura_id = response_factura.json()["id"]
+
+    response_transaccion = client.post(
+        "/transacciones",
+        json={"cantidad": 1, "vr_unitario": 10.0, "descripcion": "Producto eliminado", "factura_id": factura_id},
+    )
+    assert response_transaccion.status_code == 200
+
+    response_delete = client.delete(f"/clientes/{cliente_id}")
+    assert response_delete.status_code == 200
+
+    response_get = client.get("/clientes")
+    assert response_get.status_code == 200
+    assert all(item["id"] != cliente_id for item in response_get.json())

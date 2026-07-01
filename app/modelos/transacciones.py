@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING, Optional
 
+from sqlalchemy import ForeignKey
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
@@ -10,7 +11,7 @@ class TransaccionesBase(SQLModel):
     cantidad: int
     vr_unitario: float
     descripcion: str
-    factura_id: int = Field(foreign_key="factura.id")
+    factura_id: int = Field(sa_column_args=[ForeignKey("factura.id", ondelete="CASCADE")])
 
 
 class TransaccionesCrear(TransaccionesBase):
